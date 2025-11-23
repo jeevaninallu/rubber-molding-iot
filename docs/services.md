@@ -2,7 +2,7 @@
 
 This document lists the primary cloud services recommended for the project and the role each service will play in the Week-1 → Week-12 roadmap. Architects should pick one cloud provider (AWS / GCP / Azure) and adjust the chosen services accordingly.
 
-## Recommended Services (map by component)
+## Recommended Services 
 
 ### Ingestion
 - **AWS:** AWS IoT Core or API Gateway + ALB (HTTP)  

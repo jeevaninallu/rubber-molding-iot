@@ -1,6 +1,6 @@
 # Cloud Services for Rubber Molding IoT Project
 
-This document lists the primary cloud services recommended for the project and the role each service will play in the Week-1 → Week-12 roadmap. Architects should pick one cloud provider (AWS / GCP / Azure) and adjust the chosen services accordingly.
+This document lists the primary cloud services recommended for the project 
 
 ## Recommended Services 
 

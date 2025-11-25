@@ -1,23 +1,21 @@
 import pandas as pd
 import os
 
-print("Script is running...")  # Debug line
-
-RAW_DIR = "../dataset/raw"
-PROCESSED_DIR = "../dataset/processed"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  #
+RAW_DIR = os.path.join(BASE_DIR, "../dataset/raw")
+PROCESSED_DIR = os.path.join(BASE_DIR, "../dataset/processed")
+os.makedirs(PROCESSED_DIR, exist_ok=True)  
 
 filename = "my_sensor_data.xlsx"
 file_path = os.path.join(RAW_DIR, filename)
 
-# Check if file exists
 if not os.path.exists(file_path):
     print(f"File not found: {file_path}")
-else:
-    # Read Excel
-    df = pd.read_excel(file_path)
+    exit()
 
-    # Quick check
-    print("First 5 rows of the dataset:")
-    print(df.head())
-    print("\nDataset info:")
-    print(df.info())
+
+df = pd.read_excel(file_path)
+print("First 5 rows:")
+print(df.head())
+print("\nDataset info:")
+print(df.info())

@@ -1,64 +1,68 @@
 import pandas as pd
 import os
 
-# -------------------- Directories --------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Current script directory
+# -------------------------------
+# Setup paths
+# -------------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # folder of this script
 RAW_DIR = os.path.join(BASE_DIR, "../dataset/raw")
 PROCESSED_DIR = os.path.join(BASE_DIR, "../dataset/processed")
-os.makedirs(PROCESSED_DIR, exist_ok=True)  # Create processed folder if not exists
+os.makedirs(PROCESSED_DIR, exist_ok=True)  # create folder if not exists
 
-# -------------------- Dataset File --------------------
 filename = "my_sensor_data.xlsx"
 file_path = os.path.join(RAW_DIR, filename)
 
+# -------------------------------
+# Debug check
+# -------------------------------
+print("Script is running...")
 if not os.path.exists(file_path):
     print(f"File not found: {file_path}")
     exit()
 
-# -------------------- Read Dataset --------------------
+# -------------------------------
+# Read Excel
+# -------------------------------
 df = pd.read_excel(file_path)
 print("First 5 rows:")
 print(df.head())
 print("\nDataset info:")
 print(df.info())
 
-# -------------------- Schema Validation --------------------
-required_columns = ["timestamp", "pressure", "temperature", "vibration", "machine_id", "pump_rpm"]
+# -------------------------------
+# Validate columns
+# -------------------------------
+expected_columns = ["timestamp", "pressure", "temperature", "cycle_time", "valve_position"]
+for col in expected_columns:
+    if col not in df.columns:
+        raise ValueError(f"Missing expected column: {col}")
 
-# Check for missing columns
-missing_cols = [col for col in required_columns if col not in df.columns]
-if missing_cols:
-    raise ValueError(f"Missing columns: {missing_cols}")
+# -------------------------------
+# Clean missing values
+# -------------------------------
+df = df.dropna()  # remove rows with any missing value
+print(f"\nRows after dropping missing values: {len(df)}")
 
-# Convert data types
-df["timestamp"] = pd.to_datetime(df["timestamp"], errors='coerce')
-df["pressure"] = pd.to_numeric(df["pressure"], errors='coerce')
-df["temperature"] = pd.to_numeric(df["temperature"], errors='coerce')
-df["vibration"] = pd.to_numeric(df["vibration"], errors='coerce')
-df["pump_rpm"] = pd.to_numeric(df["pump_rpm"], errors='coerce')
-df["machine_id"] = df["machine_id"].astype(str)
+# -------------------------------
+# Remove outliers (example: z-score method)
+# -------------------------------
+from scipy import stats
+import numpy as np
 
-# -------------------- Handle Missing Values --------------------
-# Fill numeric missing values with column mean
-numeric_cols = ["pressure", "temperature", "vibration", "pump_rpm"]
-df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
+numeric_cols = ["pressure", "temperature", "cycle_time", "valve_position"]
+df = df[(np.abs(stats.zscore(df[numeric_cols])) < 3).all(axis=1)]
+print(f"Rows after removing outliers: {len(df)}")
 
-# Optional: drop rows if timestamp or machine_id missing
-df.dropna(subset=["timestamp", "machine_id"], inplace=True)
+# -------------------------------
+# Standardize timestamp
+# -------------------------------
+df["timestamp"] = pd.to_datetime(df["timestamp"])
+df = df.sort_values("timestamp")
+print("Timestamps standardized.")
 
-# -------------------- Remove Outliers (IQR Method) --------------------
-for col in numeric_cols:
-    Q1 = df[col].quantile(0.25)
-    Q3 = df[col].quantile(0.75)
-    IQR = Q3 - Q1
-    lower = Q1 - 1.5 * IQR
-    upper = Q3 + 1.5 * IQR
-    df[col] = df[col].clip(lower, upper)
-
-# -------------------- Standardize Timestamps --------------------
-df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
-
-# -------------------- Save Cleaned Dataset --------------------
-processed_file = os.path.join(PROCESSED_DIR, "cleaned_sensor_data.csv")
+# -------------------------------
+# Save cleaned data
+# -------------------------------
+processed_file = os.path.join(PROCESSED_DIR, "my_sensor_data_cleaned.csv")
 df.to_csv(processed_file, index=False)
-print(f"\nCleaned dataset saved to: {processed_file}")
+print(f"Cleaned data saved to: {processed_file}")

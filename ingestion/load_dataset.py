@@ -1,3 +1,4 @@
+print("Script is running")
 import pandas as pd
 import os
 

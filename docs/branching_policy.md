@@ -4,6 +4,7 @@ This document defines the Git branching model for the Rubber Molding IoT Project
 The goal is to maintain clean, stable, and well-organized development.
 
 1. Required Branches
+  
 1. main (Production Branch)
 
 Contains production-ready and stable code.

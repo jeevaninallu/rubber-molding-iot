@@ -66,3 +66,16 @@ print("Timestamps standardized.")
 processed_file = os.path.join(PROCESSED_DIR, "my_sensor_data_cleaned.csv")
 df.to_csv(processed_file, index=False)
 print(f"Cleaned data saved to: {processed_file}")
+
+
+import boto3
+import os
+
+def upload_to_s3(local_file_path, bucket_name, s3_key):
+    s3 = boto3.client('s3')
+    try:
+        s3.upload_file(local_file_path, bucket_name, s3_key)
+        print(f"Uploaded to s3://{bucket_name}/{s3_key}")
+    except Exception as e:
+        print("Upload failed:", e)
+

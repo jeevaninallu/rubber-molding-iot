@@ -79,3 +79,14 @@ def upload_to_s3(local_file_path, bucket_name, s3_key):
     except Exception as e:
         print("Upload failed:", e)
 
+if __name__ == "__main__":
+
+    processed_file = "dataset/processed/cleaned_dataset.csv"
+
+    upload_to_s3(
+        local_file_path=processed_file,
+        bucket_name="rubber-molding-iot-data",
+        s3_key="processed/cleaned_dataset.csv"
+    )
+
+

@@ -32,7 +32,7 @@ print(df.info())
 # -------------------------------
 # Validate columns
 # -------------------------------
-expected_columns = ["timestamp", "pressure", "temperature", "cycle_time", "valve_position"]
+expected_columns = ["machine_id", "timestamp", "pressure", "temperature", "vibration", "pump_rpm"]
 for col in expected_columns:
     if col not in df.columns:
         raise ValueError(f"Missing expected column: {col}")

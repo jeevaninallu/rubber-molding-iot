@@ -49,7 +49,7 @@ print(f"\nRows after dropping missing values: {len(df)}")
 from scipy import stats
 import numpy as np
 
-numeric_cols = ["pressure", "temperature", "cycle_time", "valve_position"]
+numeric_cols = ["pressure", "temperature", "vibration", "pump_rpm"]
 df = df[(np.abs(stats.zscore(df[numeric_cols])) < 3).all(axis=1)]
 print(f"Rows after removing outliers: {len(df)}")
 
@@ -69,7 +69,6 @@ print(f"Cleaned data saved to: {processed_file}")
 
 
 import boto3
-import os
 
 def upload_to_s3(local_file_path, bucket_name, s3_key):
     s3 = boto3.client('s3')
@@ -81,12 +80,14 @@ def upload_to_s3(local_file_path, bucket_name, s3_key):
 
 if __name__ == "__main__":
 
-    processed_file = "dataset/processed/cleaned_dataset.csv"
+    # Use the exact processed file path
+    processed_file = os.path.join(PROCESSED_DIR, "my_sensor_data_cleaned.csv")
 
     upload_to_s3(
         local_file_path=processed_file,
-        bucket_name="rubber-molding-iot-data",
-        s3_key="processed/cleaned_dataset.csv"
+        bucket_name="rubber-molding-iot-data",  
+        s3_key="processed/my_sensor_data_cleaned.csv"
     )
+
 
 

@@ -32,7 +32,7 @@ print(df.info())
 # -------------------------------
 # Validate columns
 # -------------------------------
-expected_columns = ["timestamp", "pressure", "temperature", "cycle_time", "valve_position"]
+expected_columns = ["machine_id", "timestamp", "pressure", "temperature", "vibration", "pump_rpm"]
 for col in expected_columns:
     if col not in df.columns:
         raise ValueError(f"Missing expected column: {col}")
@@ -49,7 +49,7 @@ print(f"\nRows after dropping missing values: {len(df)}")
 from scipy import stats
 import numpy as np
 
-numeric_cols = ["pressure", "temperature", "cycle_time", "valve_position"]
+numeric_cols = ["pressure", "temperature", "vibration", "pump_rpm"]
 df = df[(np.abs(stats.zscore(df[numeric_cols])) < 3).all(axis=1)]
 print(f"Rows after removing outliers: {len(df)}")
 
@@ -66,3 +66,28 @@ print("Timestamps standardized.")
 processed_file = os.path.join(PROCESSED_DIR, "my_sensor_data_cleaned.csv")
 df.to_csv(processed_file, index=False)
 print(f"Cleaned data saved to: {processed_file}")
+
+
+import boto3
+
+def upload_to_s3(local_file_path, bucket_name, s3_key):
+    s3 = boto3.client('s3')
+    try:
+        s3.upload_file(local_file_path, bucket_name, s3_key)
+        print(f"Uploaded to s3://{bucket_name}/{s3_key}")
+    except Exception as e:
+        print("Upload failed:", e)
+
+if __name__ == "__main__":
+
+    # Use the exact processed file path
+    processed_file = os.path.join(PROCESSED_DIR, "my_sensor_data_cleaned.csv")
+
+    upload_to_s3(
+        local_file_path=processed_file,
+        bucket_name="rubber-molding-iot-data",  
+        s3_key="processed/my_sensor_data_cleaned.csv"
+    )
+
+
+
